@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.DS_Store
+custom_downloads/
+shared_files/
+verify_leader_failure.py

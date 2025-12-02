@@ -1,0 +1,2 @@
+Welcome to the P2P File Sharing System!
+This file is shared from your node.

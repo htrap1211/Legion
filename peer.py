@@ -238,13 +238,20 @@ class Peer:
             
         # If I am Leader, this is a Peer heartbeat
         if self.state == LEADER:
-            peer_id = message.get('peer_id')
+            # Check if this is a conflicting Leader
+            if message.get('role') == LEADER:
+                sender_id = message.get('sender_id')
+                if sender_id > self.id:
+                    print(f"Detected higher leader {sender_id}. Stepping down.")
+                    self.state = FOLLOWER
+                    self.leader_id = sender_id
+                    self.last_leader_heartbeat = time.time()
+                    return
+            
+            peer_id = message.get('peer_id') or message.get('sender_id')
             if peer_id:
                 self.last_heartbeats[peer_id] = time.time()
                 # Also update peers list if not present (re-discovery)
-                # We need the address to reply/contact, but heartbeat might not have it?
-                # Usually we rely on discovery for address. 
-                # But we can update 'last_seen' in self.peers if they exist
                 if peer_id in self.peers:
                     self.peers[peer_id]['last_seen'] = time.time()
 
@@ -349,7 +356,8 @@ class Peer:
             time.sleep(2)
             if self.state == LEADER:
                 # Send heartbeat to all peers (broadcast)
-                msg = {'type': MSG_HEARTBEAT, 'sender_id': self.id}
+                # Send heartbeat to all peers (broadcast)
+                msg = {'type': MSG_HEARTBEAT, 'sender_id': self.id, 'role': LEADER}
                 self.unicast_socket.send_broadcast(msg)
             elif self.state == FOLLOWER:
                 # Check if leader is alive

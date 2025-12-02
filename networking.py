@@ -127,7 +127,7 @@ class TCPClient:
             # Read file size
             raw_size = sock.recv(8)
             if not raw_size:
-                return
+                raise ConnectionError("Connection closed by peer (File not found?)")
             filesize = struct.unpack('>Q', raw_size)[0]
             
             received = 0
@@ -142,3 +142,4 @@ class TCPClient:
                         progress_callback(received, filesize)
         except Exception as e:
             print(f"Error receiving file: {e}")
+            raise e

@@ -4,3 +4,10 @@ __pycache__/
 custom_downloads/
 shared_files/
 verify_leader_failure.py
+verify_download_failure.py
+test_fail_peer1/
+test_fail_peer2/
+test_peer1/
+test_peer2/
+leader_downloads/
+*.mp4

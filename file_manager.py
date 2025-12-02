@@ -121,13 +121,23 @@ class FileManager:
             # Verify Hash
             if expected_hash:
                 print("Verifying file integrity...")
-                calculated_hash = self._calculate_hash(save_path)
-                if calculated_hash == expected_hash:
-                    print("SUCCESS: File integrity verified (Checksum match).")
+                if os.path.exists(save_path):
+                    calculated_hash = self._calculate_hash(save_path)
+                    if calculated_hash == expected_hash:
+                        print("SUCCESS: File integrity verified (Checksum match).")
+                    else:
+                        print(f"WARNING: File integrity check FAILED!")
+                        print(f"Expected: {expected_hash}")
+                        print(f"Got:      {calculated_hash}")
                 else:
-                    print(f"WARNING: File integrity check FAILED!")
-                    print(f"Expected: {expected_hash}")
-                    print(f"Got:      {calculated_hash}")
+                    print("Error: File not found after download.")
             
+        except ConnectionError as e:
+            print(f"Download failed: {e}")
+            # Cleanup partial file if exists
+            if save_dir and filename:
+                partial_path = os.path.join(save_dir, filename) if save_dir else os.path.join(self.shared_dir, filename)
+                if os.path.exists(partial_path):
+                    os.remove(partial_path)
         except Exception as e:
             print(f"Error downloading file: {e}")
